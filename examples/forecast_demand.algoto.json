@@ -1,0 +1,62 @@
+{
+  "algoto": "1.0",
+  "name": "forecast_demand",
+  "algorithm": {
+    "type": "prediction",
+    "description": "Seasonal exponential smoothing with a weekly cycle, fit per call on the supplied history.",
+    "steps": [
+      "Validate and gap-fill the sales history",
+      "Fit trend and weekly seasonality components",
+      "Project forward over the requested horizon",
+      "Derive prediction intervals from in-sample residuals"
+    ],
+    "deterministic": true,
+    "version": "2.1.0"
+  },
+  "inputs": {
+    "history": {
+      "role": "data",
+      "units": "units/day"
+    },
+    "horizon_days": {
+      "role": "parameter",
+      "units": "days",
+      "effect": "Longer horizons widen the prediction intervals."
+    },
+    "interval_level": {
+      "role": "parameter",
+      "units": "probability 0–1",
+      "effect": "Higher coverage widens the bounds; the point estimate is unaffected."
+    }
+  },
+  "outputs": {
+    "forecast": {
+      "units": "units/day",
+      "uncertainty": "lower/upper bounds at the requested interval_level accompany each point estimate",
+      "interpretation": "The point estimate is the median outcome; plan capacity against the upper bound."
+    },
+    "fit_quality": {
+      "units": "MAPE, 0–1",
+      "interpretation": "Below 0.15 is a reliable fit; above 0.3 treat the forecast as indicative only."
+    }
+  },
+  "guardrails": {
+    "constraints": [
+      {
+        "rule": "horizon_days <= length(history) / 2",
+        "on_violation": "reject",
+        "description": "Supply more history or shorten the horizon."
+      }
+    ]
+  },
+  "execution": {
+    "mode": "sync",
+    "latency": "instant"
+  },
+  "errors": [
+    {
+      "when": "history contains fewer than 28 days after gap-filling",
+      "hint": "Fetch a longer sales history and retry."
+    }
+  ]
+}
