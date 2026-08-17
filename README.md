@@ -1,6 +1,6 @@
 # algoto — An Algorithmic Agentic Tool Specification
 
-**[Documentation](https://alsgregory.github.io/algoto/)**
+**[Documentation](https://alsgregory.github.io/algoto/)** · **[Schema](https://alsgregory.github.io/algoto/algoto.schema.json)**
 
 ## Creating a schema file
 
