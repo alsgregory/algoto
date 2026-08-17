@@ -1,0 +1,66 @@
+{
+  "algoto": "1.0",
+  "name": "optimise_route",
+  "algorithm": {
+    "type": "optimisation",
+    "description": "Nearest-neighbour heuristic with 2-opt local search for the travelling salesman problem.",
+    "steps": [
+      "Build a distance matrix from the input locations",
+      "Construct an initial tour using nearest-neighbour insertion",
+      "Improve the tour with iterative 2-opt edge swaps",
+      "Return the best tour found within the iteration budget"
+    ],
+    "deterministic": false,
+    "seed_input": "seed",
+    "approximate": true,
+    "parallelisable": true,
+    "version": "1.0.0"
+  },
+  "inputs": {
+    "locations": {
+      "role": "data",
+      "units": "array of {lat, lon} in decimal degrees"
+    },
+    "max_iterations": {
+      "role": "parameter",
+      "effect": "More iterations narrow the optimality gap but increase runtime."
+    },
+    "seed": {
+      "role": "seed",
+      "effect": "Fixes the random starting point for reproducibility."
+    }
+  },
+  "outputs": {
+    "tour": {
+      "interpretation": "Ordered list of location indices. Append the first index to close the loop."
+    },
+    "total_distance": {
+      "units": "kilometres",
+      "interpretation": "Total distance of the returned tour."
+    },
+    "optimality_gap": {
+      "units": "fraction 0-1",
+      "uncertainty": "Estimated gap between the returned tour and the optimal solution.",
+      "interpretation": "0.05 means the tour is estimated to be within 5% of optimal."
+    }
+  },
+  "guardrails": {
+    "constraints": [
+      {
+        "rule": "length(locations) <= 1000",
+        "on_violation": "reject",
+        "description": "Split larger sets into regional clusters and solve each independently."
+      }
+    ]
+  },
+  "execution": {
+    "mode": "sync",
+    "latency": "seconds"
+  },
+  "errors": [
+    {
+      "when": "fewer than 3 locations provided",
+      "hint": "A tour requires at least 3 locations."
+    }
+  ]
+}

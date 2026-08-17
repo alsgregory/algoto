@@ -146,7 +146,7 @@
   <div class="frontmatter" style="text-align: left;">
     <div><span class="k">Version</span> 1.0</div>
     <div><span class="k">Published</span> 2026-08-17</div>
-    <div><span class="k">Schema</span> <code>algoto.schema.json</code> (JSON Schema 2020-12)</div>
+    <div><span class="k">Schema</span> <a href="https://alsgregory.github.io/algoto/algoto.schema.json"><code>algoto.schema.json</code></a> (JSON Schema 2020-12)</div>
     <div><span class="k">License</span> Open Source</div>
     <div><span class="k">Repository</span> <a href="https://github.com/alsgregory/algoto">github.com/alsgregory/algoto</a></div>
   </div>
@@ -166,7 +166,8 @@
     <li><a href="#guardrails">8. Guardrails</a></li>
     <li><a href="#execution">9. Execution</a></li>
     <li><a href="#errors">10. Errors</a></li>
-    <li><a href="#trust">11. Trust</a></li>
+    <li><a href="#for-agents">11. For Agent Developers</a></li>
+    <li><a href="#trust">12. Trust</a></li>
   </ol>
 </nav>
 
@@ -317,7 +318,7 @@ def forecast_demand(
 
 <p>Any JSON Schema 2020-12 validator can check a document:</p>
 
-<pre><code>check-jsonschema --schemafile algoto-1.0.schema.json forecast_demand.algoto.json</code></pre>
+<pre><code>check-jsonschema --schemafile algoto.schema.json forecast_demand.algoto.json</code></pre>
 
 <p>Every key in <code>inputs</code> and <code>outputs</code>, and any <code>seed_input</code>, must name a real parameter or field of the tool. This is not enforced by the schema validator.</p>
 
@@ -500,7 +501,39 @@ def forecast_demand(
   }
 ]</code></pre>
 
-<h2 id="trust">11. Trust</h2>
+<h2 id="for-agents">11. For Agent Developers</h2>
+
+<p>An <code>algoto</code> document tells your agent things the tool's signature cannot. Here is how to act on each section.</p>
+
+<h3>11.1 Caching</h3>
+
+<p>When <code>deterministic</code> is <code>true</code>, identical inputs will always produce identical outputs. Your agent can cache and reuse results for repeated calls without re-invoking the tool.</p>
+
+<h3>11.2 Parallelism</h3>
+
+<p>When <code>parallelisable</code> is <code>true</code>, multiple calls can run concurrently with no shared state. Your agent can fan out batch work safely. When absent or <code>false</code>, calls should be sequential.</p>
+
+<h3>11.3 Input planning</h3>
+
+<p>Use <code>role</code> to understand what each input does. <code>data</code> inputs are what the tool operates on — the agent should source these from upstream tools or the user. <code>parameter</code> inputs tune behaviour — the agent can adjust these to control the output. Read the <code>effect</code> field before choosing a value: it describes the trade-off in plain language.</p>
+
+<h3>11.4 Interpreting outputs</h3>
+
+<p>Check <code>interpretation</code> before presenting results to the user. It explains what the numbers mean and how to act on them. If <code>uncertainty</code> is present, surface the confidence information alongside the point estimate — don't discard it.</p>
+
+<h3>11.5 Guardrails</h3>
+
+<p>Read <code>constraints</code> before constructing a call. They describe cross-input rules the tool will enforce. Violating a <code>reject</code> constraint wastes a round trip; the agent should check the rule client-side first. The <code>description</code> field suggests what to do instead.</p>
+
+<h3>11.6 Latency and async</h3>
+
+<p>Use <code>latency</code> to set user expectations. If the value is <code>minutes</code> or <code>long</code>, inform the user before calling. For <code>async</code> tools with a <code>poll_tool</code>, use the declared <code>poll_interval</code> rather than polling aggressively.</p>
+
+<h3>11.7 Error recovery</h3>
+
+<p>The <code>errors</code> array lists known failure modes. When a call fails, match the error against the <code>when</code> conditions and follow the <code>hint</code> — it tells the agent what to try next, avoiding blind retries.</p>
+
+<h2 id="trust">12. Trust</h2>
 
 <p>An <code>algoto</code> document is metadata. Trust it exactly as much as you trust the tool's author.</p>
 </main>

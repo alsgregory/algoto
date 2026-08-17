@@ -1,0 +1,46 @@
+{
+  "algoto": "1.0",
+  "name": "moving_average",
+  "algorithm": {
+    "type": "transformation",
+    "description": "Exponential moving average over a time series of prices.",
+    "steps": [
+      "Validate the price series is sorted by date",
+      "Compute the EMA using the specified span",
+      "Flag crossover points where the price crosses the EMA"
+    ],
+    "deterministic": true,
+    "parallelisable": true,
+    "version": "1.0.0"
+  },
+  "inputs": {
+    "prices": {
+      "role": "data",
+      "units": "array of {date, close} with close in the asset's currency"
+    },
+    "span": {
+      "role": "parameter",
+      "units": "trading days",
+      "effect": "Shorter spans react faster to price changes but produce more noise. Longer spans are smoother but lag behind."
+    }
+  },
+  "outputs": {
+    "ema": {
+      "units": "same currency as input prices",
+      "interpretation": "The smoothed price level at each date. Compare against the raw close to identify trend direction."
+    },
+    "crossovers": {
+      "interpretation": "Dates where the price crossed the EMA. 'bullish' means price crossed above; 'bearish' means price crossed below."
+    }
+  },
+  "execution": {
+    "mode": "sync",
+    "latency": "instant"
+  },
+  "errors": [
+    {
+      "when": "price series has fewer data points than span",
+      "hint": "Fetch a longer price history or reduce the span."
+    }
+  ]
+}
