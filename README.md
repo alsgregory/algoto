@@ -1,4 +1,4 @@
-# algoto
+# algoto — An Algorithmic Agentic Tool Specification
 
 **[Documentation](https://alsgregory.github.io/algoto/)**
 
