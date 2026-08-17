@@ -1,5 +1,7 @@
 # algoto
 
+**[Documentation](https://alsgregory.github.io/algoto/)**
+
 ## Creating a schema file
 
 An algoto document is a small JSON or YAML file describing one tool. You can
