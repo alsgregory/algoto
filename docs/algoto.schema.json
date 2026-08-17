@@ -1,0 +1,226 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/alsgregory/algoto/v1.0.0/schemas/algoto-1.0.schema.json",
+  "title": "algoto — Algorithmic Tool Spec (v1.0)",
+  "description": "A small annotation layer for algorithmic tools exposed to agents via MCP, CLI or similar. It adds only the meaning the tool's own definition cannot express — names, types and defaults stay where they already live.",
+  "type": "object",
+  "required": ["algoto", "name"],
+  "additionalProperties": false,
+  "properties": {
+    "algoto": {
+      "const": "1.0",
+      "description": "Spec version this document follows.",
+      "examples": ["1.0"]
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Must match the tool name or CLI subcommand this document describes.",
+      "examples": ["forecast_demand"]
+    },
+    "requires": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*$"
+      },
+      "uniqueItems": true,
+      "description": "Other tools this one depends on."
+    },
+    "algorithm": {
+      "type": "object",
+      "description": "What the tool does under the hood.",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": ["prediction", "classification", "optimisation", "simulation", "estimation", "transformation", "other"],
+          "description": "Broad family of algorithm.",
+          "examples": ["prediction"]
+        },
+        "description": {
+          "type": "string",
+          "description": "One plain-language line describing the method.",
+          "examples": ["Seasonal exponential smoothing with a weekly cycle, fit per call on the supplied history."]
+        },
+        "steps": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Optional short list of the internal steps, in order.",
+          "examples": [["Validate and gap-fill the sales history", "Fit trend and weekly seasonality components", "Project forward over the requested horizon", "Derive prediction intervals from in-sample residuals"]]
+        },
+        "deterministic": {
+          "type": "boolean",
+          "description": "True if the same inputs always give the same output. Useful for caching — when true, agents can reuse results for identical inputs.",
+          "examples": [true]
+        },
+        "parallelisable": {
+          "type": "boolean",
+          "description": "True if multiple calls can safely run concurrently with no shared state or ordering dependency."
+        },
+        "seed_input": {
+          "type": "string",
+          "description": "Name of the parameter that fixes randomness."
+        },
+        "approximate": {
+          "type": "boolean",
+          "description": "True if the output is an approximation rather than an exact answer."
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of the underlying algorithm or model.",
+          "examples": ["2.1.0"]
+        }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "description": "Extra meaning for input parameters, keyed by parameter name.",
+      "additionalProperties": { "$ref": "#/$defs/input_annotation" }
+    },
+    "outputs": {
+      "type": "object",
+      "description": "Extra meaning for output fields, keyed by field name.",
+      "additionalProperties": { "$ref": "#/$defs/output_annotation" }
+    },
+    "guardrails": {
+      "type": "object",
+      "description": "Constraints across inputs and call limits.",
+      "additionalProperties": false,
+      "properties": {
+        "constraints": {
+          "type": "array",
+          "description": "Rules across parameters, stated so agents don't hit them by trial and error.",
+          "items": {
+            "type": "object",
+            "required": ["rule"],
+            "additionalProperties": false,
+            "properties": {
+              "rule": {
+                "type": "string",
+                "description": "A readable rule over parameter names.",
+                "examples": ["horizon_days <= length(history) / 2"]
+              },
+              "on_violation": {
+                "enum": ["reject", "warn"],
+                "default": "reject",
+                "description": "What happens when the rule is broken.",
+                "examples": ["reject"]
+              },
+              "description": {
+                "type": "string",
+                "description": "What to do instead when the rule is hit.",
+                "examples": ["Supply more history or shorten the horizon."]
+              }
+            }
+          }
+        },
+        "rate_limit": {
+          "type": "string",
+          "description": "Call budget in plain words, e.g. 'max 20 calls per minute'."
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "description": "How the tool runs.",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": ["sync", "async"],
+          "default": "sync",
+          "description": "Whether results come back immediately or later.",
+          "examples": ["sync"]
+        },
+        "latency": {
+          "enum": ["instant", "seconds", "minutes", "long"],
+          "description": "Rough time to run at default inputs.",
+          "examples": ["instant"]
+        },
+        "async": {
+          "type": "object",
+          "description": "Polling hints for paired-tool async patterns.",
+          "additionalProperties": false,
+          "properties": {
+            "poll_tool": {
+              "type": "string",
+              "description": "Companion tool to poll for the result."
+            },
+            "poll_interval": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Polite polling interval in seconds."
+            }
+          }
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "description": "Known failure modes and what to do about them.",
+      "items": {
+        "type": "object",
+        "required": ["when"],
+        "additionalProperties": false,
+        "properties": {
+          "when": {
+            "type": "string",
+            "description": "Condition that triggers the error.",
+            "examples": ["history contains fewer than 28 days after gap-filling"]
+          },
+          "hint": {
+            "type": "string",
+            "description": "What to do next.",
+            "examples": ["Fetch a longer sales history and retry."]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "input_annotation": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "enum": ["data", "parameter", "seed"],
+          "default": "parameter",
+          "description": "'data' is what the tool runs on; 'parameter' tunes it; 'seed' pins randomness.",
+          "examples": ["data"]
+        },
+        "effect": {
+          "type": "string",
+          "description": "How changing this input moves the output.",
+          "examples": ["Longer horizons widen the prediction intervals."]
+        },
+        "units": {
+          "type": "string",
+          "description": "Units or scale, e.g. 'GBP', 'days', 'probability 0-1'.",
+          "examples": ["units/day"]
+        }
+      }
+    },
+    "output_annotation": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "units": {
+          "type": "string",
+          "description": "Units or scale of the field.",
+          "examples": ["units/day"]
+        },
+        "uncertainty": {
+          "type": "string",
+          "description": "How uncertainty is expressed for this field.",
+          "examples": ["lower/upper bounds at the requested interval_level accompany each point estimate"]
+        },
+        "interpretation": {
+          "type": "string",
+          "description": "How to read the value.",
+          "examples": ["The point estimate is the median outcome; plan capacity against the upper bound."]
+        }
+      }
+    }
+  }
+}
