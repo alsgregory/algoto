@@ -14,12 +14,14 @@
   "properties": {
     "algoto": {
       "const": "1.0",
-      "description": "Spec version this document follows."
+      "description": "Spec version this document follows.",
+      "examples": ["1.0"]
     },
     "name": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9_]*$",
-      "description": "Must match the tool name or CLI subcommand this document describes."
+      "description": "Must match the tool name or CLI subcommand this document describes.",
+      "examples": ["simulate_tournament"]
     },
     "requires": {
       "type": "array",
@@ -27,7 +29,9 @@
         "type": "string",
         "pattern": "^[a-z][a-z0-9_]*$"
       },
-      "description": "Other tools this one depends on."
+      "uniqueItems": true,
+      "description": "Other tools this one depends on.",
+      "examples": [["get_hyperparameters"]]
     },
     "algorithm": {
       "type": "object",
@@ -36,32 +40,39 @@
       "properties": {
         "type": {
           "enum": ["prediction", "classification", "optimisation", "simulation", "estimation", "transformation", "other"],
-          "description": "Broad family of algorithm."
+          "description": "Broad family of algorithm.",
+          "examples": ["simulation"]
         },
         "description": {
           "type": "string",
-          "description": "One plain-language line describing the method."
+          "description": "One plain-language line describing the method.",
+          "examples": ["Monte Carlo simulation of the remaining fixtures."]
         },
         "steps": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "Optional short list of the internal steps, in order."
+          "description": "Optional short list of the internal steps, in order.",
+          "examples": [["Rate the teams", "Simulate each fixture", "Aggregate the outcomes"]]
         },
         "deterministic": {
           "type": "boolean",
-          "description": "True if the same inputs always give the same output."
+          "description": "True if the same inputs always give the same output.",
+          "examples": [false]
         },
         "seed_input": {
           "type": "string",
-          "description": "Name of the parameter that fixes randomness."
+          "description": "Name of the parameter that fixes randomness.",
+          "examples": ["random_seed"]
         },
         "approximate": {
           "type": "boolean",
-          "description": "True if the output is an approximation rather than an exact answer."
+          "description": "True if the output is an approximation rather than an exact answer.",
+          "examples": [true]
         },
         "version": {
           "type": "string",
-          "description": "Version of the underlying algorithm or model."
+          "description": "Version of the underlying algorithm or model.",
+          "examples": ["2.3.0"]
         }
       }
     },
@@ -90,23 +101,27 @@
             "properties": {
               "rule": {
                 "type": "string",
-                "description": "A readable rule over parameter names."
+                "description": "A readable rule over parameter names.",
+                "examples": ["n_scenarios * horizon_days <= 1000000"]
               },
               "on_violation": {
                 "enum": ["reject", "clamp", "warn"],
                 "default": "reject",
-                "description": "What happens when the rule is broken."
+                "description": "What happens when the rule is broken.",
+                "examples": ["reject"]
               },
               "description": {
                 "type": "string",
-                "description": "What to do instead when the rule is hit."
+                "description": "What to do instead when the rule is hit.",
+                "examples": ["Lower n_scenarios or shorten the horizon."]
               }
             }
           }
         },
         "rate_limit": {
           "type": "string",
-          "description": "Call budget in plain words, e.g. 'max 20 calls per minute'."
+          "description": "Call budget in plain words, e.g. 'max 20 calls per minute'.",
+          "examples": ["max 20 calls per minute"]
         }
       }
     },
@@ -118,11 +133,13 @@
         "mode": {
           "enum": ["sync", "async"],
           "default": "sync",
-          "description": "Whether results come back immediately or later."
+          "description": "Whether results come back immediately or later.",
+          "examples": ["async"]
         },
         "latency": {
           "enum": ["instant", "seconds", "minutes", "long"],
-          "description": "Rough time to run at default inputs."
+          "description": "Rough time to run at default inputs.",
+          "examples": ["seconds"]
         },
         "async": {
           "type": "object",
@@ -131,11 +148,14 @@
           "properties": {
             "poll_tool": {
               "type": "string",
-              "description": "Companion tool to poll for the result."
+              "description": "Companion tool to poll for the result.",
+              "examples": ["get_simulation_result"]
             },
             "poll_interval": {
               "type": "number",
-              "description": "Polite polling interval in seconds."
+              "exclusiveMinimum": 0,
+              "description": "Polite polling interval in seconds.",
+              "examples": [5]
             }
           }
         }
@@ -151,11 +171,13 @@
         "properties": {
           "when": {
             "type": "string",
-            "description": "Condition that triggers the error."
+            "description": "Condition that triggers the error.",
+            "examples": ["The named team is not in the ratings table."]
           },
           "hint": {
             "type": "string",
-            "description": "What to do next."
+            "description": "What to do next.",
+            "examples": ["Check the team name against the ratings source first."]
           }
         }
       }
@@ -170,15 +192,18 @@
         "role": {
           "enum": ["data", "parameter", "seed"],
           "default": "parameter",
-          "description": "'data' is what the tool runs on; 'parameter' tunes it; 'seed' pins randomness."
+          "description": "'data' is what the tool runs on; 'parameter' tunes it; 'seed' pins randomness.",
+          "examples": ["parameter"]
         },
         "effect": {
           "type": "string",
-          "description": "How changing this input moves the output."
+          "description": "How changing this input moves the output.",
+          "examples": ["More scenarios give a smoother estimate but a slower run."]
         },
         "units": {
           "type": "string",
-          "description": "Units or scale, e.g. 'GBP', 'days', 'probability 0-1'."
+          "description": "Units or scale, e.g. 'GBP', 'days', 'probability 0-1'.",
+          "examples": ["GBP"]
         }
       }
     },
@@ -189,15 +214,18 @@
       "properties": {
         "units": {
           "type": "string",
-          "description": "Units or scale of the field."
+          "description": "Units or scale of the field.",
+          "examples": ["probability 0-1"]
         },
         "uncertainty": {
           "type": "string",
-          "description": "How uncertainty is expressed for this field."
+          "description": "How uncertainty is expressed for this field.",
+          "examples": ["95% credible interval"]
         },
         "interpretation": {
           "type": "string",
-          "description": "How to read the value."
+          "description": "How to read the value.",
+          "examples": ["Probability the team finishes in the top four."]
         }
       }
     }
