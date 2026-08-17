@@ -1,11 +1,11 @@
 # algoto — An Algorithmic Agentic Tool Specification
 
-**[Documentation](https://alsgregory.github.io/algoto/)** · **[Schema](https://alsgregory.github.io/algoto/algoto.schema.json)**
+**[Documentation](https://alsgregory.github.io/algoto/)** · **[Schema](docs/algoto.schema.json)**
 
 ## Creating a schema file
 
 An algoto document is a small JSON or YAML file describing one tool. You can
-write it by hand — start from the fields in `schemas/algoto-1.0.schema.json`, fill in the
+write it by hand — start from the fields in `docs/algoto.schema.json`, fill in the
 ones that apply, and skip the rest (only `algoto` and `name` are required.)
 
 Or point a coding agent at this repository and ask it to fill one in for you,
@@ -29,7 +29,7 @@ import json
 import yaml  # only needed for YAML documents
 from jsonschema import validate, ValidationError
 
-with open("schemas/algoto-1.0.schema.json") as f:
+with open("docs/algoto.schema.json") as f:
     schema = json.load(f)
 
 # For a JSON document use json.load; for YAML use yaml.safe_load.
@@ -45,8 +45,11 @@ except ValidationError as e:
 
 ## Examples
 
-See [`examples/`](examples/) for complete algoto documents. `forecast_demand.algoto.json`
-annotates a demand-forecasting tool.
+See [`examples/`](examples/) for complete algoto documents:
+
+- `forecast_demand.algoto.json` — demand forecasting (prediction)
+- `optimise_route.algoto.json` — travelling salesman route optimisation
+- `moving_average.algoto.json` — exponential moving average (financial indicator)
 
 ## Contributing
 
@@ -60,5 +63,5 @@ Changes to the spec follow [Semantic Versioning](https://semver.org), where the
 
 Bump the `algoto` value and the schema's `$id` on a major or minor change, and
 treat a published schema URL as immutable — new versions land as a new file under
-`schemas/` rather than editing the old one. Record every change in
+`docs/` rather than editing the old one. Record every change in
 [CHANGELOG.md](CHANGELOG.md) and tag releases (`vX.Y.Z`).
