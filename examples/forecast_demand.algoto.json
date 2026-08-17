@@ -34,10 +34,6 @@
       "units": "units/day",
       "uncertainty": "lower/upper bounds at the requested interval_level accompany each point estimate",
       "interpretation": "The point estimate is the median outcome; plan capacity against the upper bound."
-    },
-    "fit_quality": {
-      "units": "MAPE, 0–1",
-      "interpretation": "Below 0.15 is a reliable fit; above 0.3 treat the forecast as indicative only."
     }
   },
   "guardrails": {

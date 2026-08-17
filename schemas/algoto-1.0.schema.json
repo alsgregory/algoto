@@ -6,11 +6,6 @@
   "type": "object",
   "required": ["algoto", "name"],
   "additionalProperties": false,
-  "patternProperties": {
-    "^x_": {
-      "description": "Vendor or team extension fields. Anything prefixed x_ is allowed at the top level."
-    }
-  },
   "properties": {
     "algoto": {
       "const": "1.0",
@@ -55,8 +50,12 @@
         },
         "deterministic": {
           "type": "boolean",
-          "description": "True if the same inputs always give the same output.",
+          "description": "True if the same inputs always give the same output. Useful for caching — when true, agents can reuse results for identical inputs.",
           "examples": [true]
+        },
+        "parallelisable": {
+          "type": "boolean",
+          "description": "True if multiple calls can safely run concurrently with no shared state or ordering dependency."
         },
         "seed_input": {
           "type": "string",
@@ -102,7 +101,7 @@
                 "examples": ["horizon_days <= length(history) / 2"]
               },
               "on_violation": {
-                "enum": ["reject", "clamp", "warn"],
+                "enum": ["reject", "warn"],
                 "default": "reject",
                 "description": "What happens when the rule is broken.",
                 "examples": ["reject"]

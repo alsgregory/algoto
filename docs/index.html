@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>algoto — Algorithmic Tool Spec</title>
+<base target="_self">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&display=swap');
+  :root {
+    --bg: #fafaf9;
+    --surface: #f4f4f3;
+    --text: #1c1c1a;
+    --muted: #6b6b66;
+    --border: #e4e4e1;
+    --accent: #1a7f5c;
+    --accent-soft: #e7f2ed;
+    --code-bg: #f0f0ee;
+    --code-text: #2d2d2a;
+    --table-head: #f7f7f5;
+  }
+  :root:not([data-theme="light"]) { }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141412;
+      --surface: #1b1b19;
+      --text: #e8e8e4;
+      --muted: #98988f;
+      --border: #2b2b28;
+      --accent: #4cc297;
+      --accent-soft: #16261f;
+      --code-bg: #1e1e1b;
+      --code-text: #d9d9d3;
+      --table-head: #1a1a18;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141412;
+    --surface: #1b1b19;
+    --text: #e8e8e4;
+    --muted: #98988f;
+    --border: #2b2b28;
+    --accent: #4cc297;
+    --accent-soft: #16261f;
+    --code-bg: #1e1e1b;
+    --code-text: #d9d9d3;
+    --table-head: #1a1a18;
+  }
+
+  html { scroll-behavior: smooth; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    max-width: 1100px;
+    margin: 0 auto;
+    gap: 48px;
+    padding: 0 32px;
+  }
+  nav.toc {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100dvh;
+    overflow-y: auto;
+    padding: 48px 0 48px;
+    font-size: 13.5px;
+  }
+  nav.toc .toc-title {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; }
+  nav.toc li { margin: 0; }
+  nav.toc a {
+    display: block;
+    padding: 4px 10px;
+    color: var(--muted);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+  }
+  nav.toc a:hover { color: var(--text); border-left-color: var(--border); }
+  main {
+    padding: 48px 0 96px;
+    max-width: 46rem;
+    min-width: 0;
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; gap: 0; padding: 0 20px; }
+    nav.toc { position: static; height: auto; padding: 32px 0 0; }
+    main { padding-top: 24px; }
+  }
+
+  h1 { font-size: 34px; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 8px; font-weight: 650; }
+  h2 { font-size: 22px; letter-spacing: -0.01em; font-weight: 650; margin: 56px 0 12px; padding-top: 16px; border-top: 1px solid var(--border); }
+  h3 { font-size: 16.5px; font-weight: 650; margin: 32px 0 8px; }
+  p { margin: 0 0 14px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .frontmatter { color: var(--muted); font-size: 14px; margin-bottom: 40px; }
+  .frontmatter div { padding: 2px 0; }
+  .frontmatter span.k { display: inline-block; min-width: 110px; color: var(--text); font-weight: 550; }
+  .status-pill { display: inline-block; font-size: 12px; font-weight: 600; color: var(--accent); background: var(--accent-soft); padding: 2px 10px; border-radius: 999px; margin-bottom: 20px; }
+
+  code { font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.87em; background: var(--code-bg); color: var(--code-text); padding: 1px 5px; border-radius: 4px; }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; overflow-x: auto; margin: 0 0 18px; line-height: 1.55; }
+  pre code { background: none; padding: 0; font-size: 13px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 0 0 20px; }
+  th { text-align: left; font-weight: 600; background: var(--table-head); border-bottom: 1px solid var(--border); padding: 8px 12px; white-space: nowrap; }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  td:first-child code { white-space: nowrap; }
+  .table-wrap { overflow-x: auto; margin-bottom: 20px; }
+  .table-wrap table { margin-bottom: 0; }
+
+  .note { background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 0 0 18px; font-size: 14.5px; }
+  .note p:last-child { margin-bottom: 0; }
+  ul, ol.body-list { margin: 0 0 14px; padding-left: 24px; }
+  li { margin-bottom: 4px; }
+  .muted { color: var(--muted); }
+  footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 13.5px; color: var(--muted); }
+  header.page-header { max-width: 1100px; margin: 0 auto; padding: 48px 32px 24px; border-bottom: 1px solid var(--border); text-align: center; }
+  @media (max-width: 900px) { header.page-header { padding: 32px 20px 8px; } }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div style="display:inline-block;font-family:'Space Grotesk',sans-serif;">
+    <div style="font-size:36px;font-weight:600;letter-spacing:-0.015em;color:var(--text);line-height:1;">algoto</div>
+    <div style="font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-top:7px;padding-left:2px;">Algorithmic Tool Spec</div>
+  </div>
+
+  <div class="frontmatter" style="text-align: left;">
+    <div><span class="k">Version</span> 1.0</div>
+    <div><span class="k">Published</span> 2026-08-17</div>
+    <div><span class="k">Schema</span> <code>algoto.schema.json</code> (JSON Schema 2020-12)</div>
+    <div><span class="k">License</span> Open Source</div>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="toc" aria-label="Table of contents">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#introduction">1. Introduction</a></li>
+    <li><a href="#example">2. Example</a></li>
+    <li><a href="#attaching">3. Attachment to Agent</a></li>
+    <li><a href="#document">4. Document Properties</a></li>
+    <li><a href="#algorithm">5. Algorithm</a></li>
+    <li><a href="#inputs">6. Inputs</a></li>
+    <li><a href="#outputs">7. Outputs</a></li>
+    <li><a href="#guardrails">8. Guardrails</a></li>
+    <li><a href="#execution">9. Execution</a></li>
+    <li><a href="#errors">10. Errors</a></li>
+    <li><a href="#trust">11. Trust</a></li>
+  </ol>
+</nav>
+
+<main>
+<h2 id="introduction" style="margin-top: 0; padding-top: 0; border-top: none;">1. Introduction</h2>
+
+<p>This is a simple specification aimed at assisting developers building algorithmic-based MCP / CLI agentic tooling which have high Developer and Agent Experience (DX/AX). The majority of MCPs and CLIs relate to accessing data, however there is a growing demand for agentic tooling which surface algorithms such as predictive model inference, business logic and optimisation. The vast design and execution space for these tools, caused by their flexible nature, often results in poor AX and inconsistent implementation / documentation. Much of this information ends up buried in tool descriptions as free text — <code>algoto</code> provides a structured, machine-readable format for it instead.</p>
+
+<p>This spec attempts to close this gap, covering foundational elements of the design space for algorithms. A development team which builds many sets of agentic tools, surfacing a wide range of algorithms, will benefit from having a common specification for their tools to adhere to. This specification extends and builds on top of MCPs annotations (agent hints), setting out guidelines specific for this class of tooling. </p>
+
+<h3>1.1 Complementarity</h3>
+
+<p>An <code>algoto</code> document only carries information your tool's source code and annotations cannot already express. Function signatures, type hints, default values, docstrings and validation rules all belong in your code. <code>algoto</code> adds the things code can't say: what class of algorithm is running, whether it's deterministic, how each input shifts the output, what the numbers in the response actually mean, and what to do when something fails.</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Your source code already defines</th><th><code>algoto</code> adds</th></tr>
+  <tr><td>Function name, docstring, parameter names</td><td>Algorithm family (prediction, simulation, etc.), method summary, internal steps</td></tr>
+  <tr><td>Type hints, defaults, validation bounds</td><td>Whether the algorithm is deterministic, approximate, or seeded</td></tr>
+  <tr><td>Input parameter types and validation</td><td>Each input's role (data vs tuning parameter), its effect on the output, and its units</td></tr>
+  <tr><td>Return type and response shape</td><td>What each output field means, its units, and how uncertainty is expressed</td></tr>
+  <tr><td>Async/await, job queue mechanics</td><td>Expected latency class, companion polling tool and interval</td></tr>
+  <tr><td>Exception types and error responses</td><td>When each error fires and what the caller should try next</td></tr>
+</table>
+</div>
+
+<h2 id="example">2. Example</h2>
+
+<p>A forecasting tool written the usual way:</p>
+
+<pre><code>@mcp.tool()
+def forecast_demand(
+    history: list[Observation],
+    horizon_days: int = 14,
+    interval_level: float = 0.9,
+) -&gt; Forecast: ...</code></pre>
+
+<p>The <code>algoto</code> document beside it:</p>
+
+<pre><code>{
+  "algoto": "1.0",
+  "name": "forecast_demand",
+  "algorithm": {
+    "type": "prediction",
+    "description": "Seasonal exponential smoothing with a weekly cycle, fit per call on the supplied history.",
+    "steps": [
+      "Validate and gap-fill the sales history",
+      "Fit trend and weekly seasonality components",
+      "Project forward over the requested horizon",
+      "Derive prediction intervals from in-sample residuals"
+    ],
+    "deterministic": true,
+    "version": "2.1.0"
+  },
+  "inputs": {
+    "history": { "role": "data", "units": "units/day" },
+    "horizon_days": {
+      "role": "parameter",
+      "units": "days",
+      "effect": "Longer horizons widen the prediction intervals."
+    },
+    "interval_level": {
+      "role": "parameter",
+      "units": "probability 0–1",
+      "effect": "Higher coverage widens the bounds; the point estimate is unaffected."
+    }
+  },
+  "outputs": {
+    "forecast": {
+      "units": "units/day",
+      "uncertainty": "lower/upper bounds at the requested interval_level accompany each point estimate",
+      "interpretation": "The point estimate is the median outcome; plan capacity against the upper bound."
+    }
+  },
+  "guardrails": {
+    "constraints": [
+      {
+        "rule": "horizon_days &lt;= length(history) / 2",
+        "on_violation": "reject",
+        "description": "Supply more history or shorten the horizon."
+      }
+    ]
+  },
+  "execution": { "mode": "sync", "latency": "instant" },
+  "errors": [
+    {
+      "when": "history contains fewer than 28 days after gap-filling",
+      "hint": "Fetch a longer sales history and retry."
+    }
+  ]
+}</code></pre>
+
+<p>You could put all of this in a tool's description string, but <code>algoto</code> gives a formalised, machine-readable structure for expressing it — consistent across tools and teams.</p>
+
+<h2 id="attaching">3. Attachment to Agent</h2>
+
+<p>The document shape is the same everywhere. Only delivery differs.</p>
+
+<h3>3.1 Join key</h3>
+
+<p><code>name</code> must exactly match the tool it annotates — the MCP tool name or CLI subcommand.</p>
+
+<h3>3.2 MCP servers</h3>
+
+<p>Use the MCP protocol's <code>meta</code> field on the tool definition to attach the document. This keeps the annotation structured and separate from the tool's description.</p>
+
+<pre><code>import json
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("forecasting")
+
+ALGOTO_DOC = {
+    "algoto": "1.0",
+    "name": "forecast_demand",
+    "algorithm": {
+        "type": "prediction",
+        "description": "Seasonal exponential smoothing with a weekly cycle.",
+        "deterministic": True,
+        "version": "2.1.0",
+    },
+    "inputs": {
+        "horizon_days": {
+            "effect": "Longer horizons widen the prediction intervals."
+        }
+    },
+    "outputs": {
+        "forecast": {
+            "units": "units/day",
+            "interpretation": "The point estimate is the median outcome."
+        }
+    },
+}
+
+@mcp.tool(meta={"algoto": ALGOTO_DOC})
+def forecast_demand(
+    history: list[dict],
+    horizon_days: int = 14,
+    interval_level: float = 0.9,
+) -&gt; dict:
+    """Forecast demand from historical observations."""
+    ...</code></pre>
+
+<h3>3.3 CLI</h3>
+
+<p>Ship a sidecar <code>&lt;tool_name&gt;.algoto.json</code> and support <code>--algoto</code> on each subcommand to print it.</p>
+
+<h3>3.4 Validation</h3>
+
+<p>Any JSON Schema 2020-12 validator can check a document:</p>
+
+<pre><code>check-jsonschema --schemafile algoto-1.0.schema.json forecast_demand.algoto.json</code></pre>
+
+<p>Every key in <code>inputs</code> and <code>outputs</code>, and any <code>seed_input</code>, must name a real parameter or field of the tool. This is not enforced by the schema validator.</p>
+
+<h2 id="document">4. Document Properties</h2>
+
+<p>Two properties are required. Everything else is optional.</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Property</th><th>Type</th><th>Required</th><th>Description</th></tr>
+  <tr><td><code>algoto</code></td><td>const <code>"1.0"</code></td><td>yes</td><td>Spec version.</td></tr>
+  <tr><td><code>name</code></td><td>string</td><td>yes</td><td>Join key. Must match the tool name (<code>^[a-z][a-z0-9_]*$</code>).</td></tr>
+  <tr><td><code>requires</code></td><td>array of string</td><td>no</td><td>Other tool names this tool depends on.</td></tr>
+  <tr><td><code>algorithm</code></td><td>object</td><td>no</td><td>Section 5.</td></tr>
+  <tr><td><code>inputs</code></td><td>object</td><td>no</td><td>Section 6.</td></tr>
+  <tr><td><code>outputs</code></td><td>object</td><td>no</td><td>Section 7.</td></tr>
+  <tr><td><code>guardrails</code></td><td>object</td><td>no</td><td>Section 8.</td></tr>
+  <tr><td><code>execution</code></td><td>object</td><td>no</td><td>Section 9.</td></tr>
+  <tr><td><code>errors</code></td><td>array</td><td>no</td><td>Section 10.</td></tr>
+</table>
+</div>
+
+<h2 id="algorithm">5. Algorithm</h2>
+
+<p>Describes what the tool does under the hood.</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+  <tr><td><code>type</code></td><td>enum</td><td><code>prediction</code>, <code>classification</code>, <code>optimisation</code>, <code>simulation</code>, <code>estimation</code>, <code>transformation</code>, <code>other</code>.</td></tr>
+  <tr><td><code>description</code></td><td>string</td><td>One plain-language line describing the method.</td></tr>
+  <tr><td><code>steps</code></td><td>array of string</td><td>Short list of internal steps, in order.</td></tr>
+  <tr><td><code>deterministic</code></td><td>boolean</td><td>True when identical inputs always produce identical outputs. Agents can use this to cache results for repeated calls.</td></tr>
+  <tr><td><code>parallelisable</code></td><td>boolean</td><td>True if multiple calls can safely run concurrently with no shared state or ordering dependency.</td></tr>
+  <tr><td><code>seed_input</code></td><td>string</td><td>Name of the parameter that pins randomness.</td></tr>
+  <tr><td><code>approximate</code></td><td>boolean</td><td>True if the output is an approximation (heuristic, time-bounded, sampling-based).</td></tr>
+  <tr><td><code>version</code></td><td>string</td><td>Algorithm version. Bump when outputs change for identical inputs.</td></tr>
+</table>
+</div>
+
+<pre><code>"algorithm": {
+  "type": "prediction",
+  "description": "Seasonal exponential smoothing with a weekly cycle, fit per call on the supplied history.",
+  "steps": [
+    "Validate and gap-fill the sales history",
+    "Fit trend and weekly seasonality components",
+    "Project forward over the requested horizon",
+    "Derive prediction intervals from in-sample residuals"
+  ],
+  "deterministic": true,
+  "version": "2.1.0"
+}</code></pre>
+
+<h2 id="inputs">6. Inputs</h2>
+
+<p>Per-parameter annotations, keyed by the exact parameter name. Each annotation must contain at least one property.</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+  <tr><td><code>role</code></td><td>enum</td><td><code>parameter</code></td><td><code>data</code> is what the tool runs on, <code>parameter</code> tunes it, <code>seed</code> pins randomness.</td></tr>
+  <tr><td><code>effect</code></td><td>string</td><td></td><td>How changing this input moves the output.</td></tr>
+  <tr><td><code>units</code></td><td>string</td><td></td><td>Units or scale.</td></tr>
+</table>
+</div>
+
+<pre><code>"inputs": {
+  "history": { "role": "data", "units": "units/day" },
+  "horizon_days": {
+    "role": "parameter",
+    "units": "days",
+    "effect": "Longer horizons widen the prediction intervals."
+  }
+}</code></pre>
+
+<p>Types, defaults, descriptions, required flags and enum values belong in the tool's input schema, not here.</p>
+
+<h2 id="outputs">7. Outputs</h2>
+
+<p>Per-field annotations, keyed by field name. Each annotation must contain at least one property.</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+  <tr><td><code>units</code></td><td>string</td><td>Units or scale of the field.</td></tr>
+  <tr><td><code>uncertainty</code></td><td>string</td><td>How uncertainty is expressed for this field.</td></tr>
+  <tr><td><code>interpretation</code></td><td>string</td><td>How to read the value.</td></tr>
+</table>
+</div>
+
+<pre><code>"outputs": {
+  "forecast": {
+    "units": "units/day",
+    "uncertainty": "lower/upper bounds at the requested interval_level accompany each point estimate",
+    "interpretation": "The point estimate is the median outcome; plan capacity against the upper bound."
+  }
+}</code></pre>
+
+<h2 id="guardrails">8. Guardrails</h2>
+
+<p>Cross-input constraints and rate limits, stated so agents do not discover them by trial and error.</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+  <tr><td><code>constraints</code></td><td>array</td><td>Rules across parameters. Each has a <code>rule</code>, optional <code>on_violation</code>, and optional <code>description</code>.</td></tr>
+  <tr><td><code>rate_limit</code></td><td>string</td><td>Call budget in plain words.</td></tr>
+</table>
+</div>
+
+<h3>8.1 Constraint fields</h3>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+  <tr><td><code>rule</code></td><td>string</td><td></td><td>Readable constraint over parameter names. Not machine-evaluated.</td></tr>
+  <tr><td><code>on_violation</code></td><td>enum</td><td><code>reject</code></td><td><code>reject</code> or <code>warn</code>.</td></tr>
+  <tr><td><code>description</code></td><td>string</td><td></td><td>What the agent should do instead.</td></tr>
+</table>
+</div>
+
+<pre><code>"guardrails": {
+  "constraints": [
+    {
+      "rule": "horizon_days &lt;= length(history) / 2",
+      "on_violation": "reject",
+      "description": "Supply more history or shorten the horizon."
+    }
+  ]
+}</code></pre>
+
+<h2 id="execution">9. Execution</h2>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr>
+  <tr><td><code>mode</code></td><td>enum</td><td><code>sync</code></td><td><code>sync</code> or <code>async</code>.</td></tr>
+  <tr><td><code>latency</code></td><td>enum</td><td>undeclared</td><td><code>instant</code> (&lt;1s), <code>seconds</code> (&lt;30s), <code>minutes</code> (&lt;10min), <code>long</code>.</td></tr>
+  <tr><td><code>async</code></td><td>object</td><td></td><td>Polling hints when using a paired-tool async pattern.</td></tr>
+</table>
+</div>
+
+<h3>9.1 Async</h3>
+
+<p>When the stack provides protocol-level async (e.g. MCP Tasks), it owns the polling mechanism and no <code>async</code> block is needed. Declare <code>poll_tool</code> only when the server uses a paired-tool pattern — a start tool plus a separate result-retrieval tool.</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Property</th><th>Type</th><th>Description</th></tr>
+  <tr><td><code>poll_tool</code></td><td>string</td><td>Companion tool to poll for results.</td></tr>
+  <tr><td><code>poll_interval</code></td><td>number</td><td>Polling interval in seconds.</td></tr>
+</table>
+</div>
+
+<pre><code>"execution": {
+  "mode": "async",
+  "latency": "minutes",
+  "async": {
+    "poll_tool": "get_schedule_result",
+    "poll_interval": 10
+  }
+}</code></pre>
+
+<h2 id="errors">10. Errors</h2>
+
+<p>Known failure modes with recovery hints. Error codes and response shapes stay in the tool definition.</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Property</th><th>Type</th><th>Required</th><th>Description</th></tr>
+  <tr><td><code>when</code></td><td>string</td><td>yes</td><td>Condition that triggers the error.</td></tr>
+  <tr><td><code>hint</code></td><td>string</td><td>no</td><td>What the agent should do next.</td></tr>
+</table>
+</div>
+
+<pre><code>"errors": [
+  {
+    "when": "history contains fewer than 28 days after gap-filling",
+    "hint": "Fetch a longer sales history and retry."
+  }
+]</code></pre>
+
+<h2 id="trust">11. Trust</h2>
+
+<p>An <code>algoto</code> document is metadata. Trust it exactly as much as you trust the tool's author.</p>
+</main>
+</div>
+<script>
+document.querySelectorAll('nav.toc a[href^="#"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    var el = document.getElementById(this.getAttribute('href').slice(1));
+    if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+</script>
+</body>
+</html>
