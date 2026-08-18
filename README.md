@@ -14,11 +14,13 @@ tool"*. The `examples/` folder gives it a working template to follow.
 
 ## Validating documents
 
-An algoto document is plain JSON/YAML with a published JSON Schema, so you can
-validate it anywhere — no algoto install required.
+An algoto document is plain JSON or YAML with a published schema, so you can
+validate it without installing algoto.
 
-**In your editor (zero setup).** Link the schema at the top of each document;
-VS Code (and most editors) then validate and autocomplete live:
+### In your editor
+
+Link the schema at the top of the document. VS Code and most editors then
+validate and autocomplete as you type:
 
 ```json
 {
@@ -28,8 +30,9 @@ VS Code (and most editors) then validate and autocomplete live:
 }
 ```
 
-**On every commit.** The standard `check-jsonschema` hook — nothing of algoto's
-to install:
+### On every commit
+
+Add the `check-jsonschema` pre-commit hook:
 
 ```yaml
 # .pre-commit-config.yaml
@@ -45,39 +48,22 @@ repos:
           - https://alsgregory.github.io/algoto/algoto.schema.json
 ```
 
-**In CI.** Use the bundled action, or one line directly:
+### In CI
+
+Add the bundled action to your workflow:
 
 ```yaml
       - uses: alsgregory/algoto/.github/actions/validate@v1.0.0
 ```
 
+### With pipx
+
+Run the check straight from the command line, nothing to install first:
+
 ```bash
 pipx run check-jsonschema \
   --schemafile https://alsgregory.github.io/algoto/algoto.schema.json \
   **/*.algoto.json
-```
-
-**In Python.** Load the schema and your document and validate. The same code
-handles JSON and YAML — YAML is a superset of JSON, so once parsed both are
-plain Python dicts:
-
-```python
-import json
-import yaml  # only needed for YAML documents
-from jsonschema import validate, ValidationError
-
-with open("docs/algoto.schema.json") as f:
-    schema = json.load(f)
-
-# For a JSON document use json.load; for YAML use yaml.safe_load.
-with open("my_tool.yaml") as f:
-    document = yaml.safe_load(f)
-
-try:
-    validate(instance=document, schema=schema)
-    print("Valid")
-except ValidationError as e:
-    print(f"Invalid: {e.message}")
 ```
 
 ## Examples
