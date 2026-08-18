@@ -12,35 +12,58 @@ Or point a coding agent at this repository and ask it to fill one in for you,
 e.g. *"read the algoto schema and write an algoto document for my `forecast_demand`
 tool"*. The `examples/` folder gives it a working template to follow.
 
-## Validating a JSON or YAML file against the schema in Python
+## Validating documents
 
-Install the dependencies (`pyyaml` is only needed for YAML):
+An algoto document is plain JSON or YAML with a published schema, so you can
+validate it.
 
-```bash
-pip install jsonschema pyyaml
+### Editor
+
+Link the schema at the top of the document. VS Code and most editors then
+validate and autocomplete as you type:
+
+```json
+{
+  "$schema": "https://alsgregory.github.io/algoto/algoto.schema.json",
+  "algoto": "1.0",
+  "name": "forecast_demand"
+}
 ```
 
-Load the schema and your document, then validate. The same code handles both
-JSON and YAML — YAML is a superset of JSON, so once parsed both are plain
-Python dicts:
+### Pre-commit
 
-```python
-import json
-import yaml  # only needed for YAML documents
-from jsonschema import validate, ValidationError
+Add the `check-jsonschema` pre-commit hook:
 
-with open("docs/algoto.schema.json") as f:
-    schema = json.load(f)
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.29.4
+    hooks:
+      - id: check-jsonschema
+        name: Validate algoto documents
+        files: '\.algoto\.(json|ya?ml)$'
+        args:
+          - --schemafile
+          - https://alsgregory.github.io/algoto/algoto.schema.json
+```
 
-# For a JSON document use json.load; for YAML use yaml.safe_load.
-with open("my_tool.yaml") as f:
-    document = yaml.safe_load(f)
+### CI
 
-try:
-    validate(instance=document, schema=schema)
-    print("Valid")
-except ValidationError as e:
-    print(f"Invalid: {e.message}")
+Add the bundled action to your workflow:
+
+```yaml
+      - uses: alsgregory/algoto/.github/actions/validate@v1.0.0
+```
+
+### `pipx`
+
+Run the check straight from the command line, nothing to install first:
+
+```bash
+pipx run check-jsonschema \
+  --schemafile https://alsgregory.github.io/algoto/algoto.schema.json \
+  **/*.algoto.json
 ```
 
 ## Examples
