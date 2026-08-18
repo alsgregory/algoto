@@ -15,7 +15,7 @@ tool"*. The `examples/` folder gives it a working template to follow.
 ## Validating documents
 
 An algoto document is plain JSON or YAML with a published schema, so you can
-validate it without installing algoto.
+validate it.
 
 ### In your editor
 
