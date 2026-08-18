@@ -17,7 +17,7 @@ tool"*. The `examples/` folder gives it a working template to follow.
 An algoto document is plain JSON or YAML with a published schema, so you can
 validate it.
 
-### In your editor
+### Editor
 
 Link the schema at the top of the document. VS Code and most editors then
 validate and autocomplete as you type:
@@ -30,7 +30,7 @@ validate and autocomplete as you type:
 }
 ```
 
-### On every commit
+### Pre-commit
 
 Add the `check-jsonschema` pre-commit hook:
 
@@ -48,7 +48,7 @@ repos:
           - https://alsgregory.github.io/algoto/algoto.schema.json
 ```
 
-### In CI
+### CI
 
 Add the bundled action to your workflow:
 
@@ -56,7 +56,7 @@ Add the bundled action to your workflow:
       - uses: alsgregory/algoto/.github/actions/validate@v1.0.0
 ```
 
-### With pipx
+### `pipx`
 
 Run the check straight from the command line, nothing to install first:
 
