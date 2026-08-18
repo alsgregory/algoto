@@ -1,0 +1,14 @@
+name: Validate algoto documents
+description: Validate algoto JSON/YAML documents against the published algoto schema.
+inputs:
+  files:
+    description: Glob of documents to validate.
+    default: '**/*.algoto.json'
+  schema:
+    description: Schema URL.
+    default: https://alsgregory.github.io/algoto/algoto.schema.json
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: pipx run check-jsonschema --schemafile "${{ inputs.schema }}" ${{ inputs.files }}

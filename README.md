@@ -12,17 +12,54 @@ Or point a coding agent at this repository and ask it to fill one in for you,
 e.g. *"read the algoto schema and write an algoto document for my `forecast_demand`
 tool"*. The `examples/` folder gives it a working template to follow.
 
-## Validating a JSON or YAML file against the schema in Python
+## Validating documents
 
-Install the dependencies (`pyyaml` is only needed for YAML):
+An algoto document is plain JSON/YAML with a published JSON Schema, so you can
+validate it anywhere — no algoto install required.
 
-```bash
-pip install jsonschema pyyaml
+**In your editor (zero setup).** Link the schema at the top of each document;
+VS Code (and most editors) then validate and autocomplete live:
+
+```json
+{
+  "$schema": "https://alsgregory.github.io/algoto/algoto.schema.json",
+  "algoto": "1.0",
+  "name": "forecast_demand"
+}
 ```
 
-Load the schema and your document, then validate. The same code handles both
-JSON and YAML — YAML is a superset of JSON, so once parsed both are plain
-Python dicts:
+**On every commit.** The standard `check-jsonschema` hook — nothing of algoto's
+to install:
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.29.4
+    hooks:
+      - id: check-jsonschema
+        name: Validate algoto documents
+        files: '\.algoto\.(json|ya?ml)$'
+        args:
+          - --schemafile
+          - https://alsgregory.github.io/algoto/algoto.schema.json
+```
+
+**In CI.** Use the bundled action, or one line directly:
+
+```yaml
+      - uses: alsgregory/algoto/.github/actions/validate@v1.0.0
+```
+
+```bash
+pipx run check-jsonschema \
+  --schemafile https://alsgregory.github.io/algoto/algoto.schema.json \
+  **/*.algoto.json
+```
+
+**In Python.** Load the schema and your document and validate. The same code
+handles JSON and YAML — YAML is a superset of JSON, so once parsed both are
+plain Python dicts:
 
 ```python
 import json

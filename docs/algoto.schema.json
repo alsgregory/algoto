@@ -7,6 +7,11 @@
   "required": ["algoto", "name"],
   "additionalProperties": false,
   "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri",
+      "description": "Optional link to this schema so editors validate the document live."
+    },
     "algoto": {
       "const": "1.0",
       "description": "Spec version this document follows.",
