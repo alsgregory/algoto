@@ -146,7 +146,7 @@
   <div class="frontmatter" style="text-align: left;">
     <div><span class="k">Version</span> 1.1</div>
     <div><span class="k">Published</span> 2026-08-19</div>
-    <div><span class="k">Schema</span> <a href="https://alsgregory.github.io/algoto/algoto.schema.json"><code>algoto.schema.json</code></a> (JSON Schema 2020-12) — pin to <a href="https://alsgregory.github.io/algoto/v1.1/algoto.schema.json"><code>v1.1</code></a> · <a href="https://alsgregory.github.io/algoto/v1.0/algoto.schema.json"><code>v1.0</code></a></div>
+    <div><span class="k">Schema</span> <a href="https://alsgregory.github.io/algoto/algoto.schema.json"><code>algoto.schema.json</code></a> · <a href="https://alsgregory.github.io/algoto/v1.1/algoto.schema.json"><code>v1.1</code></a> · <a href="https://alsgregory.github.io/algoto/v1.0/algoto.schema.json"><code>v1.0</code></a></div>
     <div><span class="k">License</span> Open Source</div>
     <div><span class="k">Repository</span> <a href="https://github.com/alsgregory/algoto">github.com/alsgregory/algoto</a></div>
   </div>
@@ -157,16 +157,16 @@
   <div class="toc-title">Contents</div>
   <ol>
     <li><a href="#introduction">1. Introduction</a></li>
-    <li><a href="#example">2. Example</a></li>
-    <li><a href="#attaching">3. Attachment to Agent</a></li>
-    <li><a href="#document">4. Document Properties</a></li>
-    <li><a href="#algorithm">5. Algorithm</a></li>
-    <li><a href="#inputs">6. Inputs</a></li>
-    <li><a href="#outputs">7. Outputs</a></li>
-    <li><a href="#guardrails">8. Guardrails</a></li>
-    <li><a href="#execution">9. Execution</a></li>
-    <li><a href="#errors">10. Errors</a></li>
-    <li><a href="#for-agents">11. For Agent Developers</a></li>
+    <li><a href="#for-agents">2. For Agent Developers</a></li>
+    <li><a href="#example">3. Example</a></li>
+    <li><a href="#attaching">4. Attachment to Agent</a></li>
+    <li><a href="#document">5. Document Properties</a></li>
+    <li><a href="#algorithm">6. Algorithm</a></li>
+    <li><a href="#inputs">7. Inputs</a></li>
+    <li><a href="#outputs">8. Outputs</a></li>
+    <li><a href="#guardrails">9. Guardrails</a></li>
+    <li><a href="#execution">10. Execution</a></li>
+    <li><a href="#errors">11. Errors</a></li>
     <li><a href="#trust">12. Trust</a></li>
   </ol>
 </nav>
@@ -176,11 +176,9 @@
 
 <p>This is a simple specification aimed at assisting developers building algorithmic-based MCP / CLI agentic tooling which have high Developer and Agent Experience (DX/AX). The majority of MCPs and CLIs relate to accessing data, however there is a growing demand for agentic tooling which surface algorithms such as predictive model inference, business logic and optimisation. The vast design and execution space for these tools, caused by their flexible nature, often results in poor AX and inconsistent implementation / documentation. Much of this information ends up buried in tool descriptions as free text — <code>algoto</code> provides a structured, machine-readable format for it instead.</p>
 
-<p>This spec attempts to close this gap, covering foundational elements of the design space for algorithms. A development team which builds many sets of agentic tools, surfacing a wide range of algorithms, will benefit from having a common specification for their tools to adhere to. This specification extends and builds on top of MCPs annotations (agent hints), setting out guidelines specific for this class of tooling. </p>
+<p>This spec attempts to close this gap, covering foundational elements of the design space for algorithms. A development team which builds many sets of agentic tools, surfacing a wide range of algorithms, will benefit from having a common specification for their tools to adhere to. This specification extends and builds on top of MCPs annotations (agent hints), setting out guidelines specific for this class of tooling. It isn't intended as an industry standard, just a practical format for keeping this kind of tooling consistent.</p>
 
-<h3>1.1 Complementarity</h3>
-
-<p>An <code>algoto</code> document only carries information your tool's source code and annotations cannot already express. Function signatures, type hints, default values, docstrings and validation rules all belong in your code. <code>algoto</code> adds the things code can't say: what class of algorithm is running, whether it's deterministic, how each input shifts the output, what the numbers in the response actually mean, and what to do when something fails.</p>
+<p>Much of what an <code>algoto</code> document expresses could, in principle, live in your source code — but MCP has no way yet to annotate most of it, so it never reaches the agent. Function signatures, type hints, default values, docstrings and validation rules already surface through the tool definition. <code>algoto</code> adds a structured place for the things that are only expressed via the source code itself: what class of algorithm is running, whether it's deterministic, how each input shifts the output, what the numbers in the response actually mean, and what to do when something fails.</p>
 
 <div class="table-wrap">
 <table>
@@ -194,7 +192,39 @@
 </table>
 </div>
 
-<h2 id="example">2. Example</h2>
+<h2 id="for-agents">2. For Agent Developers</h2>
+
+<p>An <code>algoto</code> document surfaces things the tool's signature has no structured way to annotate yet. Here is how to act on each section.</p>
+
+<h3>2.1 Caching</h3>
+
+<p>When <code>deterministic</code> is <code>true</code>, identical inputs will always produce identical outputs. Your agent can cache and reuse results for repeated calls without re-invoking the tool.</p>
+
+<h3>2.2 Parallelism</h3>
+
+<p>When <code>parallelisable</code> is <code>true</code>, multiple calls can run concurrently with no shared state. Your agent can fan out batch work safely. When absent or <code>false</code>, calls should be sequential.</p>
+
+<h3>2.3 Input planning</h3>
+
+<p>Use <code>role</code> to understand what each input does. <code>data</code> inputs are what the tool operates on — the agent should source these from upstream tools or the user. <code>parameter</code> inputs tune behaviour — the agent can adjust these to control the output. Read the <code>effect</code> field before choosing a value: it describes the trade-off in plain language. When <code>omission</code> is present, it tells you what the tool does when the input is left out — use it to decide whether the default behaviour suits the task or whether you need to override it.</p>
+
+<h3>2.4 Interpreting outputs</h3>
+
+<p>Check <code>interpretation</code> before presenting results to the user. It explains what the numbers mean and how to act on them. If <code>uncertainty</code> is present, surface the confidence information alongside the point estimate — don't discard it.</p>
+
+<h3>2.5 Guardrails</h3>
+
+<p>Read <code>constraints</code> before constructing a call. They describe cross-input rules the tool will enforce. Violating a <code>reject</code> constraint wastes a round trip; the agent should check the rule client-side first. The <code>description</code> field suggests what to do instead.</p>
+
+<h3>2.6 Latency and async</h3>
+
+<p>Use <code>latency</code> to set user expectations. If the value is <code>minutes</code> or <code>long</code>, inform the user before calling. For <code>async</code> tools with a <code>poll_tool</code>, use the declared <code>poll_interval</code> rather than polling aggressively.</p>
+
+<h3>2.7 Error recovery</h3>
+
+<p>The <code>errors</code> array lists known failure modes. When a call fails, match the error against the <code>when</code> conditions and follow the <code>hint</code> — it tells the agent what to try next, avoiding blind retries.</p>
+
+<h2 id="example">3. Example</h2>
 
 <p>A forecasting tool written the usual way:</p>
 
@@ -208,7 +238,7 @@ def forecast_demand(
 <p>The <code>algoto</code> document beside it:</p>
 
 <pre><code>{
-  "algoto": "1.0",
+  "algoto": "1.1",
   "name": "forecast_demand",
   "algorithm": {
     "type": "prediction",
@@ -264,17 +294,19 @@ def forecast_demand(
 
 <p>You could put all of this in a tool's description string, but <code>algoto</code> gives a formalised, machine-readable structure for expressing it — consistent across tools and teams.</p>
 
-<h2 id="attaching">3. Attachment to Agent</h2>
+<h2 id="attaching">4. Attachment to Agent</h2>
 
-<p>The document shape is the same everywhere. Only delivery differs.</p>
+<p>The document itself is the same everywhere; there are a number of different mechanisms for delivering it to an agent, depending on the protocol the tool is exposed through.</p>
 
-<h3>3.1 Join key</h3>
+<h3>4.1 Tool name</h3>
 
-<p><code>name</code> must exactly match the tool it annotates — the MCP tool name or CLI subcommand.</p>
+<p><code>name</code> must exactly match the tool it annotates — the MCP tool name or CLI subcommand. This is the join key that links the document to the tool.</p>
 
-<h3>3.2 MCP servers</h3>
+<p>MCP servers must attach the document under the <code>_meta</code> key <code>alsgregory.github.io/algoto</code>. A single, fixed key is what makes documents discoverable — an agent or linter can look for exactly that string across every server.</p>
 
-<p>Use the MCP protocol's <code>meta</code> field on the tool definition to attach the document. This keeps the annotation structured and separate from the tool's description.</p>
+<h3>4.2 MCP servers</h3>
+
+<p>Use the MCP protocol's <code>_meta</code> field on the tool definition to attach the document. This keeps the annotation structured and exposes the document to the client.</p>
 
 <pre><code>import json
 from mcp.server.fastmcp import FastMCP
@@ -282,7 +314,7 @@ from mcp.server.fastmcp import FastMCP
 mcp = FastMCP("forecasting")
 
 ALGOTO_DOC = {
-    "algoto": "1.0",
+    "algoto": "1.1",
     "name": "forecast_demand",
     "algorithm": {
         "type": "prediction",
@@ -303,7 +335,7 @@ ALGOTO_DOC = {
     },
 }
 
-@mcp.tool(meta={"algoto": ALGOTO_DOC})
+@mcp.tool(meta={"alsgregory.github.io/algoto": ALGOTO_DOC})
 def forecast_demand(
     history: list[dict],
     horizon_days: int = 14,
@@ -312,38 +344,36 @@ def forecast_demand(
     """Forecast demand from historical observations."""
     ...</code></pre>
 
-<h3>3.3 CLI</h3>
+<h3>4.3 CLI</h3>
 
 <p>Ship a sidecar <code>&lt;tool_name&gt;.algoto.json</code> and support <code>--algoto</code> on each subcommand to print it.</p>
 
-<h3>3.4 Validation</h3>
+<h3>4.4 Validation</h3>
 
 <p>Any JSON Schema 2020-12 validator can check a document:</p>
 
 <pre><code>check-jsonschema --schemafile algoto.schema.json forecast_demand.algoto.json</code></pre>
 
-<p>Every key in <code>inputs</code> and <code>outputs</code>, and any <code>seed_input</code>, must name a real parameter or field of the tool. This is not enforced by the schema validator.</p>
+<p>On the repository's <a href="https://github.com/alsgregory/algoto#validating-documents">README</a> there are more examples of how to add validation into your workflow.</p>
 
-<h2 id="document">4. Document Properties</h2>
-
-<p>Two properties are required. Everything else is optional.</p>
+<h2 id="document">5. Document Properties</h2>
 
 <div class="table-wrap">
 <table>
   <tr><th>Property</th><th>Type</th><th>Required</th><th>Description</th></tr>
-  <tr><td><code>algoto</code></td><td>const <code>"1.0"</code></td><td>yes</td><td>Spec version.</td></tr>
+  <tr><td><code>algoto</code></td><td><code>"1.0"</code> | <code>"1.1"</code></td><td>yes</td><td>Spec version.</td></tr>
   <tr><td><code>name</code></td><td>string</td><td>yes</td><td>Join key. Must match the tool name (<code>^[a-z][a-z0-9_]*$</code>).</td></tr>
   <tr><td><code>requires</code></td><td>array of string</td><td>no</td><td>Other tool names this tool depends on.</td></tr>
-  <tr><td><code>algorithm</code></td><td>object</td><td>no</td><td>Section 5.</td></tr>
-  <tr><td><code>inputs</code></td><td>object</td><td>no</td><td>Section 6.</td></tr>
-  <tr><td><code>outputs</code></td><td>object</td><td>no</td><td>Section 7.</td></tr>
-  <tr><td><code>guardrails</code></td><td>object</td><td>no</td><td>Section 8.</td></tr>
-  <tr><td><code>execution</code></td><td>object</td><td>no</td><td>Section 9.</td></tr>
-  <tr><td><code>errors</code></td><td>array</td><td>no</td><td>Section 10.</td></tr>
+  <tr><td><code>algorithm</code></td><td>object</td><td>no</td><td>Section 6.</td></tr>
+  <tr><td><code>inputs</code></td><td>object</td><td>no</td><td>Section 7.</td></tr>
+  <tr><td><code>outputs</code></td><td>object</td><td>no</td><td>Section 8.</td></tr>
+  <tr><td><code>guardrails</code></td><td>object</td><td>no</td><td>Section 9.</td></tr>
+  <tr><td><code>execution</code></td><td>object</td><td>no</td><td>Section 10.</td></tr>
+  <tr><td><code>errors</code></td><td>array</td><td>no</td><td>Section 11.</td></tr>
 </table>
 </div>
 
-<h2 id="algorithm">5. Algorithm</h2>
+<h2 id="algorithm">6. Algorithm</h2>
 
 <p>Describes what the tool does under the hood.</p>
 
@@ -374,7 +404,7 @@ def forecast_demand(
   "version": "2.1.0"
 }</code></pre>
 
-<h2 id="inputs">6. Inputs</h2>
+<h2 id="inputs">7. Inputs</h2>
 
 <p>Per-parameter annotations, keyed by the exact parameter name. Each annotation must contain at least one property.</p>
 
@@ -400,7 +430,7 @@ def forecast_demand(
 
 <p>Types, default values, descriptions, required flags and enum values belong in the tool's input schema, not here. <code>omission</code> complements (not replaces) a default value: it describes the <em>consequence</em> of leaving an input out, which a raw value like <code>14</code> cannot convey.</p>
 
-<h2 id="outputs">7. Outputs</h2>
+<h2 id="outputs">8. Outputs</h2>
 
 <p>Per-field annotations, keyed by field name. Each annotation must contain at least one property.</p>
 
@@ -421,7 +451,7 @@ def forecast_demand(
   }
 }</code></pre>
 
-<h2 id="guardrails">8. Guardrails</h2>
+<h2 id="guardrails">9. Guardrails</h2>
 
 <p>Cross-input constraints and rate limits, stated so agents do not discover them by trial and error.</p>
 
@@ -433,7 +463,7 @@ def forecast_demand(
 </table>
 </div>
 
-<h3>8.1 Constraint fields</h3>
+<h3>9.1 Constraint fields</h3>
 
 <div class="table-wrap">
 <table>
@@ -454,7 +484,7 @@ def forecast_demand(
   ]
 }</code></pre>
 
-<h2 id="execution">9. Execution</h2>
+<h2 id="execution">10. Execution</h2>
 
 <div class="table-wrap">
 <table>
@@ -465,9 +495,9 @@ def forecast_demand(
 </table>
 </div>
 
-<h3>9.1 Async</h3>
+<h3>10.1 Async</h3>
 
-<p>When the stack provides protocol-level async (e.g. MCP Tasks), it owns the polling mechanism and no <code>async</code> block is needed. Declare <code>poll_tool</code> only when the server uses a paired-tool pattern — a start tool plus a separate result-retrieval tool.</p>
+<p>The <code>async</code> block is only relevant when protocol-level async (such as MCP Tasks) isn't supported. Where it is, the protocol owns the polling mechanism and no <code>async</code> block is needed. Declare <code>poll_tool</code> only when the server falls back to a paired-tool pattern — a start tool plus a separate result-retrieval tool.</p>
 
 <div class="table-wrap">
 <table>
@@ -486,7 +516,7 @@ def forecast_demand(
   }
 }</code></pre>
 
-<h2 id="errors">10. Errors</h2>
+<h2 id="errors">11. Errors</h2>
 
 <p>Known failure modes with recovery hints. Error codes and response shapes stay in the tool definition.</p>
 
@@ -504,38 +534,6 @@ def forecast_demand(
     "hint": "Fetch a longer sales history and retry."
   }
 ]</code></pre>
-
-<h2 id="for-agents">11. For Agent Developers</h2>
-
-<p>An <code>algoto</code> document tells your agent things the tool's signature cannot. Here is how to act on each section.</p>
-
-<h3>11.1 Caching</h3>
-
-<p>When <code>deterministic</code> is <code>true</code>, identical inputs will always produce identical outputs. Your agent can cache and reuse results for repeated calls without re-invoking the tool.</p>
-
-<h3>11.2 Parallelism</h3>
-
-<p>When <code>parallelisable</code> is <code>true</code>, multiple calls can run concurrently with no shared state. Your agent can fan out batch work safely. When absent or <code>false</code>, calls should be sequential.</p>
-
-<h3>11.3 Input planning</h3>
-
-<p>Use <code>role</code> to understand what each input does. <code>data</code> inputs are what the tool operates on — the agent should source these from upstream tools or the user. <code>parameter</code> inputs tune behaviour — the agent can adjust these to control the output. Read the <code>effect</code> field before choosing a value: it describes the trade-off in plain language. When <code>omission</code> is present, it tells you what the tool does when the input is left out — use it to decide whether the default behaviour suits the task or whether you need to override it.</p>
-
-<h3>11.4 Interpreting outputs</h3>
-
-<p>Check <code>interpretation</code> before presenting results to the user. It explains what the numbers mean and how to act on them. If <code>uncertainty</code> is present, surface the confidence information alongside the point estimate — don't discard it.</p>
-
-<h3>11.5 Guardrails</h3>
-
-<p>Read <code>constraints</code> before constructing a call. They describe cross-input rules the tool will enforce. Violating a <code>reject</code> constraint wastes a round trip; the agent should check the rule client-side first. The <code>description</code> field suggests what to do instead.</p>
-
-<h3>11.6 Latency and async</h3>
-
-<p>Use <code>latency</code> to set user expectations. If the value is <code>minutes</code> or <code>long</code>, inform the user before calling. For <code>async</code> tools with a <code>poll_tool</code>, use the declared <code>poll_interval</code> rather than polling aggressively.</p>
-
-<h3>11.7 Error recovery</h3>
-
-<p>The <code>errors</code> array lists known failure modes. When a call fails, match the error against the <code>when</code> conditions and follow the <code>hint</code> — it tells the agent what to try next, avoiding blind retries.</p>
 
 <h2 id="trust">12. Trust</h2>
 
