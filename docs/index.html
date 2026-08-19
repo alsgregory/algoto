@@ -178,7 +178,7 @@
 
 <p>This spec attempts to close this gap, covering foundational elements of the design space for algorithms. A development team which builds many sets of agentic tools, surfacing a wide range of algorithms, will benefit from having a common specification for their tools to adhere to. This specification extends and builds on top of MCPs annotations (agent hints), setting out guidelines specific for this class of tooling. It isn't intended as an industry standard, just a practical format for keeping this kind of tooling consistent.</p>
 
-<p>Much of what an <code>algoto</code> document expresses could, in principle, live in your source code — but MCP has no way yet to annotate most of it, so it never reaches the agent. Function signatures, type hints, default values, docstrings and validation rules already surface through the tool definition. <code>algoto</code> adds a structured place for the things that currently don't: what class of algorithm is running, whether it's deterministic, how each input shifts the output, what the numbers in the response actually mean, and what to do when something fails.</p>
+<p>Much of what an <code>algoto</code> document expresses could, in principle, live in your source code — but MCP has no way yet to annotate most of it, so it never reaches the agent. Function signatures, type hints, default values, docstrings and validation rules already surface through the tool definition. <code>algoto</code> adds a structured place for the things that are only expressed via the source code itself: what class of algorithm is running, whether it's deterministic, how each input shifts the output, what the numbers in the response actually mean, and what to do when something fails.</p>
 
 <div class="table-wrap">
 <table>
@@ -194,7 +194,7 @@
 
 <h2 id="for-agents">2. For Agent Developers</h2>
 
-<p>An <code>algoto</code> document tells your agent things the tool's signature cannot. Here is how to act on each section.</p>
+<p>An <code>algoto</code> document surfaces things the tool's signature has no structured way to annotate yet. Here is how to act on each section.</p>
 
 <h3>2.1 Caching</h3>
 
