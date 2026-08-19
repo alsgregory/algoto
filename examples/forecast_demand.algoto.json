@@ -1,5 +1,5 @@
 {
-  "algoto": "1.0",
+  "algoto": "1.1",
   "name": "forecast_demand",
   "algorithm": {
     "type": "prediction",
@@ -21,12 +21,14 @@
     "horizon_days": {
       "role": "parameter",
       "units": "days",
-      "effect": "Longer horizons widen the prediction intervals."
+      "effect": "Longer horizons widen the prediction intervals.",
+      "omission": "A 14-day horizon is used, suited to short-term operational planning."
     },
     "interval_level": {
       "role": "parameter",
       "units": "probability 0–1",
-      "effect": "Higher coverage widens the bounds; the point estimate is unaffected."
+      "effect": "Higher coverage widens the bounds; the point estimate is unaffected.",
+      "omission": "A 90% prediction interval is returned."
     }
   },
   "outputs": {

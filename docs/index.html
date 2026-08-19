@@ -144,9 +144,9 @@
   </div>
 
   <div class="frontmatter" style="text-align: left;">
-    <div><span class="k">Version</span> 1.0</div>
-    <div><span class="k">Published</span> 2026-08-17</div>
-    <div><span class="k">Schema</span> <a href="https://alsgregory.github.io/algoto/algoto.schema.json"><code>algoto.schema.json</code></a> (JSON Schema 2020-12)</div>
+    <div><span class="k">Version</span> 1.1</div>
+    <div><span class="k">Published</span> 2026-08-19</div>
+    <div><span class="k">Schema</span> <a href="https://alsgregory.github.io/algoto/algoto.schema.json"><code>algoto.schema.json</code></a> (JSON Schema 2020-12) — pin to <a href="https://alsgregory.github.io/algoto/v1.1/algoto.schema.json"><code>v1.1</code></a> · <a href="https://alsgregory.github.io/algoto/v1.0/algoto.schema.json"><code>v1.0</code></a></div>
     <div><span class="k">License</span> Open Source</div>
     <div><span class="k">Repository</span> <a href="https://github.com/alsgregory/algoto">github.com/alsgregory/algoto</a></div>
   </div>
@@ -186,8 +186,8 @@
 <table>
   <tr><th>Your source code already defines</th><th><code>algoto</code> adds</th></tr>
   <tr><td>Function name, docstring, parameter names</td><td>Algorithm family (prediction, simulation, etc.), method summary, internal steps</td></tr>
-  <tr><td>Type hints, defaults, validation bounds</td><td>Whether the algorithm is deterministic, approximate, or seeded</td></tr>
-  <tr><td>Input parameter types and validation</td><td>Each input's role (data vs tuning parameter), its effect on the output, and its units</td></tr>
+  <tr><td>Type hints, default values, validation bounds</td><td>Whether the algorithm is deterministic, approximate, or seeded</td></tr>
+  <tr><td>Input parameter types and validation</td><td>Each input's role (data vs tuning parameter), its effect on the output, its units, and what happens when it is omitted</td></tr>
   <tr><td>Return type and response shape</td><td>What each output field means, its units, and how uncertainty is expressed</td></tr>
   <tr><td>Async/await, job queue mechanics</td><td>Expected latency class, companion polling tool and interval</td></tr>
   <tr><td>Exception types and error responses</td><td>When each error fires and what the caller should try next</td></tr>
@@ -227,12 +227,14 @@ def forecast_demand(
     "horizon_days": {
       "role": "parameter",
       "units": "days",
-      "effect": "Longer horizons widen the prediction intervals."
+      "effect": "Longer horizons widen the prediction intervals.",
+      "omission": "A 14-day horizon is used, suited to short-term operational planning."
     },
     "interval_level": {
       "role": "parameter",
       "units": "probability 0–1",
-      "effect": "Higher coverage widens the bounds; the point estimate is unaffected."
+      "effect": "Higher coverage widens the bounds; the point estimate is unaffected.",
+      "omission": "A 90% prediction interval is returned."
     }
   },
   "outputs": {
@@ -382,6 +384,7 @@ def forecast_demand(
   <tr><td><code>role</code></td><td>enum</td><td><code>parameter</code></td><td><code>data</code> is what the tool runs on, <code>parameter</code> tunes it, <code>seed</code> pins randomness.</td></tr>
   <tr><td><code>effect</code></td><td>string</td><td></td><td>How changing this input moves the output.</td></tr>
   <tr><td><code>units</code></td><td>string</td><td></td><td>Units or scale.</td></tr>
+  <tr><td><code>omission</code></td><td>string</td><td></td><td>What the tool does when this input is absent — the behaviour that takes effect, not the raw default value.</td></tr>
 </table>
 </div>
 
@@ -390,11 +393,12 @@ def forecast_demand(
   "horizon_days": {
     "role": "parameter",
     "units": "days",
-    "effect": "Longer horizons widen the prediction intervals."
+    "effect": "Longer horizons widen the prediction intervals.",
+    "omission": "A 14-day horizon is used, suited to short-term operational planning."
   }
 }</code></pre>
 
-<p>Types, defaults, descriptions, required flags and enum values belong in the tool's input schema, not here.</p>
+<p>Types, default values, descriptions, required flags and enum values belong in the tool's input schema, not here. <code>omission</code> complements (not replaces) a default value: it describes the <em>consequence</em> of leaving an input out, which a raw value like <code>14</code> cannot convey.</p>
 
 <h2 id="outputs">7. Outputs</h2>
 
@@ -515,7 +519,7 @@ def forecast_demand(
 
 <h3>11.3 Input planning</h3>
 
-<p>Use <code>role</code> to understand what each input does. <code>data</code> inputs are what the tool operates on — the agent should source these from upstream tools or the user. <code>parameter</code> inputs tune behaviour — the agent can adjust these to control the output. Read the <code>effect</code> field before choosing a value: it describes the trade-off in plain language.</p>
+<p>Use <code>role</code> to understand what each input does. <code>data</code> inputs are what the tool operates on — the agent should source these from upstream tools or the user. <code>parameter</code> inputs tune behaviour — the agent can adjust these to control the output. Read the <code>effect</code> field before choosing a value: it describes the trade-off in plain language. When <code>omission</code> is present, it tells you what the tool does when the input is left out — use it to decide whether the default behaviour suits the task or whether you need to override it.</p>
 
 <h3>11.4 Interpreting outputs</h3>
 

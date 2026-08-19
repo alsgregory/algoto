@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://alsgregory.github.io/algoto/algoto.schema.json",
+  "$id": "https://alsgregory.github.io/algoto/v1.1/algoto.schema.json",
   "title": "algoto — Algorithmic Tool Spec (v1.1)",
   "description": "A small annotation layer for algorithmic tools exposed to agents via MCP, CLI or similar. It adds only the meaning the tool's own definition cannot express — names, types and defaults stay where they already live.",
   "type": "object",
