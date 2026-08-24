@@ -1,0 +1,12 @@
+{
+  "algoto": "1.1",
+  "name": "forecast_demand",
+  "inputs": {
+    "history": { "role": "data" },
+    "horizon_days": { "role": "parameter" },
+    "smoothing_factor": {
+      "role": "parameter",
+      "effect": "Documents a parameter the tool does not actually accept."
+    }
+  }
+}

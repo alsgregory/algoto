@@ -30,7 +30,7 @@
         "pattern": "^[a-z][a-z0-9_]*$"
       },
       "uniqueItems": true,
-      "description": "Other tools this one depends on."
+      "description": "Prerequisite tools the agent should call first; their output supplies this tool's inputs. A data-flow hint for planning, not a record of internal calls or a deployment constraint."
     },
     "algorithm": {
       "type": "object",

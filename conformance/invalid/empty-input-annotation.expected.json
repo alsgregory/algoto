@@ -1,0 +1,4 @@
+{
+  "reason": "an input annotation must carry at least one property (minProperties: 1); an empty annotation says nothing",
+  "field": "inputs.horizon_days"
+}

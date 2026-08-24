@@ -1,0 +1,4 @@
+{
+  "passes": false,
+  "reason": "requires names 'fetch_sales_history', which is not present on the server (server_tools: forecast_demand, get_squad_costs)"
+}

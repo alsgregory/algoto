@@ -66,6 +66,26 @@ pipx run check-jsonschema \
   **/*.algoto.json
 ```
 
+## Conformance
+
+Schema validation only tells you a document is well-formed. It cannot tell you
+the document matches the tool it describes — that its inputs are real
+parameters, that its `requires` name tools that exist, that the errors it
+documents are ones the tool can emit. Those checks belong in your own test
+suite, run against the tool.
+
+[`conformance/`](conformance/) ships both kinds of check as plain data — no
+package to install — so a validator in any language can prove itself by walking
+the directory:
+
+- `conformance/valid/` — documents that must pass the schema.
+- `conformance/invalid/` — documents that must fail, each with an
+  `.expected.json` naming the reason and field.
+- `conformance/cross-check/` — cases pairing a document with the tool it
+  describes, for the checks the schema cannot make.
+
+See [`conformance/README.md`](conformance/README.md) for the layout.
+
 ## Examples
 
 See [`examples/`](examples/) for complete algoto documents:

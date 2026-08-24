@@ -1,0 +1,7 @@
+{
+  "algoto": "1.1",
+  "name": "forecast_demand",
+  "algorithm": {
+    "type": "regression"
+  }
+}

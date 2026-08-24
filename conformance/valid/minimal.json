@@ -1,0 +1,5 @@
+{
+  "$schema": "https://alsgregory.github.io/algoto/algoto.schema.json",
+  "algoto": "1.1",
+  "name": "forecast_demand"
+}

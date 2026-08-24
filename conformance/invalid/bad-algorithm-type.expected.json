@@ -1,0 +1,4 @@
+{
+  "reason": "'regression' is not one of the allowed algorithm.type values (prediction, classification, optimisation, simulation, estimation, transformation, other)",
+  "field": "algorithm.type"
+}
