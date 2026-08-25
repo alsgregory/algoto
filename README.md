@@ -80,8 +80,6 @@ the directory:
 - `conformance/valid/` — documents that must pass the schema.
 - `conformance/invalid/` — documents that must fail, each with an
   `.expected.json` naming the reason and field.
-- `conformance/cross-check/` — cases pairing a document with the tool it
-  describes, for the checks the schema cannot make.
 
 See [`conformance/README.md`](conformance/README.md) for the layout.
 

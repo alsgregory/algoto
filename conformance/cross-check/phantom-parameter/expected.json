@@ -1,4 +1,0 @@
-{
-  "passes": false,
-  "reason": "inputs names 'smoothing_factor', which is not a parameter of the tool (parameters: history, horizon_days, interval_level)"
-}

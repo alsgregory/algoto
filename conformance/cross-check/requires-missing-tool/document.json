@@ -1,5 +1,0 @@
-{
-  "algoto": "1.1",
-  "name": "forecast_demand",
-  "requires": ["fetch_sales_history"]
-}

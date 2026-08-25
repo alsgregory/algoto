@@ -1,6 +1,0 @@
-{
-  "name": "forecast_demand",
-  "parameters": ["history", "horizon_days"],
-  "error_codes": [],
-  "server_tools": ["forecast_demand", "get_squad_costs"]
-}

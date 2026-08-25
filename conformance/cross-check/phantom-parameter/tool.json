@@ -1,6 +1,0 @@
-{
-  "name": "forecast_demand",
-  "parameters": ["history", "horizon_days", "interval_level"],
-  "error_codes": [],
-  "server_tools": ["forecast_demand"]
-}
