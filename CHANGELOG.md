@@ -4,33 +4,6 @@ All notable changes to the algoto spec are recorded here. Versions follow
 [Semantic Versioning](https://semver.org); the `major.minor` part is the value a
 document declares in its `algoto` field.
 
-## [1.1.1] - 2026-08-24
-
-Documentation and clarifications only; no change to what validates.
-
-### Added
-- `conformance/` fixtures: valid/invalid documents (with `.expected.json`
-  reasons) and cross-check cases pairing a document with the tool it describes,
-  all as plain data so a validator in any language can prove itself without a
-  package.
-
-### Changed
-- §4 now states which fields reach a model. `_meta` carries the document for
-  client code, linters and validators, but current model tool APIs have no
-  metadata field, so model-facing fields (`effect`, `interpretation`, error
-  `hint`s) must also be surfaced through the tool description or input-schema
-  property descriptions. §2 now marks which fields are consumed by client code
-  and which by a model.
-- Clarified that `requires` names prerequisite tools the agent should call
-  first (a data-flow hint), not internal calls or a deployment constraint;
-  schema descriptions updated to match.
-- §6 now states that a cache over `deterministic` results must include the
-  algorithm `version`, so a version bump does not serve stale outputs.
-- §1 leads with the checkable-contract benefit (verifiable without an agent)
-  and frames the agent-behaviour benefit as intent; a scope line says to
-  document tools that run an algorithm, not plain data-access reads.
-- §3 notes the token overhead of the structured form over equivalent prose.
-
 ## [1.1.0] - 2026-08-19
 
 ### Added

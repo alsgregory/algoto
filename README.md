@@ -70,11 +70,10 @@ pipx run check-jsonschema \
 
 Schema validation only tells you a document is well-formed. It cannot tell you
 the document matches the tool it describes — that its inputs are real
-parameters, that its `requires` name tools that exist, that the errors it
-documents are ones the tool can emit. Those checks belong in your own test
-suite, run against the tool.
+parameters, that its errors are ones the tool can emit. Those checks belong in
+your own test suite.
 
-[`conformance/`](conformance/) ships both kinds of check as plain data — no
+[`conformance/`](conformance/) contains both kinds of check as plain data — no
 package to install — so a validator in any language can prove itself by walking
 the directory:
 

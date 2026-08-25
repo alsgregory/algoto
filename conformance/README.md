@@ -1,4 +1,4 @@
-# algoto conformance fixtures
+# Conformance fixtures
 
 A language-agnostic test set for an algoto validator. Everything here is plain
 data — no package, no code, no dependency to install — so an implementation in
@@ -8,7 +8,7 @@ There are two levels, because there are two kinds of check.
 
 ## Schema conformance — `valid/` and `invalid/`
 
-These check whether a document is **well-formed** against
+These check whether a document is well-formed against
 [`algoto.schema.json`](../docs/algoto.schema.json). Any JSON Schema 2020-12
 validator can run them.
 
@@ -39,8 +39,8 @@ done
 
 ## Cross-checks — `cross-check/`
 
-Schema validation cannot tell whether a document matches the **tool it
-describes**. That drift is where real documents go wrong, and catching it needs
+Schema validation cannot tell whether a document matches the tool it
+describes. That drift is where real documents go wrong, and catching it needs
 the tool's definition alongside the document. Each case is a directory:
 
 ```
