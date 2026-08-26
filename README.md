@@ -66,6 +66,17 @@ pipx run check-jsonschema \
   **/*.algoto.json
 ```
 
+## Conformance
+
+[`conformance/`](conformance/) contains test documents as plain data — no
+package to install. A validator in any language can prove itself against them:
+
+- `conformance/valid/` — documents that must pass the schema.
+- `conformance/invalid/` — documents that must fail, each with an
+  `.expected.json` naming the reason and field.
+
+See [`conformance/README.md`](conformance/README.md) for the layout.
+
 ## Examples
 
 See [`examples/`](examples/) for complete algoto documents:

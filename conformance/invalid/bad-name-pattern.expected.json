@@ -1,0 +1,4 @@
+{
+  "reason": "'name' must match ^[a-z][a-z0-9_]*$ (lowercase, digits and underscores; no hyphens or capitals)",
+  "field": "name"
+}
