@@ -106,6 +106,7 @@
   h1 { font-size: 34px; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 8px; font-weight: 650; }
   h2 { font-size: 22px; letter-spacing: -0.01em; font-weight: 650; margin: 56px 0 12px; padding-top: 16px; border-top: 1px solid var(--border); }
   h3 { font-size: 16.5px; font-weight: 650; margin: 32px 0 8px; }
+  h4 { font-size: 14.5px; font-weight: 650; margin: 24px 0 6px; color: var(--muted); }
   p { margin: 0 0 14px; }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
@@ -176,7 +177,7 @@
 
 <p>This is a simple specification aimed at assisting developers building algorithmic-based MCP / CLI agentic tooling which have high Developer and Agent Experience (DX/AX). The majority of MCPs and CLIs relate to accessing data, however there is a growing demand for agentic tooling which surface algorithms such as predictive model inference, business logic and optimisation. The vast design and execution space for these tools, caused by their flexible nature, often results in poor AX and inconsistent implementation / documentation. Much of this information ends up buried in tool descriptions as free text — <code>algoto</code> provides a structured, machine-readable format for it instead. It's meant for tools that run an algorithm, not for plain data-access ones.</p>
 
-<p>A structured document can be checked against the tool it describes: you can confirm its inputs and errors are real, which you can't do with a free-text description. The bigger aim is that a model reads these fields and makes better calls — but that's harder to prove, so treat it as the goal for now.</p>
+<p>A structured document can be checked against the tool it describes: you can confirm its inputs and errors are real, which you can't do with a free-text description. The bigger aim is that a model reads these fields and makes better calls.</p>
 
 <p>This spec attempts to close this gap, covering foundational elements of the design space for algorithms. A development team which builds many sets of agentic tools, surfacing a wide range of algorithms, will benefit from having a common specification for their tools to adhere to. This specification extends and builds on top of MCPs annotations (agent hints), setting out guidelines specific for this class of tooling. It isn't intended as an industry standard, just a practical format for keeping this kind of tooling consistent. Success would be finding a way to fold some of these ideas into the protocol layer itself.</p>
 
@@ -197,8 +198,6 @@
 <h2 id="for-agents">2. For Agent Developers</h2>
 
 <p>An <code>algoto</code> document surfaces things the tool's signature has no structured way to annotate yet. Here is how to act on each section.</p>
-
-<p>Its fields have two readers. Some are for your client code: <code>deterministic</code> and <code>parallelisable</code> (caching and fan-out), <code>guardrails.constraints</code> (checked before a call), <code>execution</code> (latency and polling), and <code>requires</code> (which upstream tools to call first). The rest only help if a model reads them — <code>effect</code>, <code>interpretation</code>, <code>uncertainty</code> and the error <code>hint</code>s. Those don't reach a model on their own; §4 explains how to surface them.</p>
 
 <h3>2.1 Caching</h3>
 
@@ -296,7 +295,7 @@ def forecast_demand(
   ]
 }</code></pre>
 
-<p>You could put all of this in a tool's description string, but <code>algoto</code> gives a formalised, machine-readable structure for expressing it — consistent across tools and teams. The structure costs a little more — expect a small, single-digit percentage more tokens than the same content as prose — a fair trade for something consistent and checkable.</p>
+<p>You could put all of this in a tool's description string, but <code>algoto</code> gives a formalised, machine-readable structure for expressing it — consistent across tools and teams. The structure costs a little more — expect a small, single-digit percentage more tokens than the same content as prose — a fair trade-off.</p>
 
 <h2 id="attaching">4. Attachment to Agent</h2>
 
@@ -348,24 +347,17 @@ def forecast_demand(
     """Forecast demand from historical observations."""
     ...</code></pre>
 
-<h3>4.3 What reaches the model</h3>
+<h4>What reaches the model</h4>
 
-<p>Attaching the document under <code>_meta</code> is enough for the fields your client code reads (<code>deterministic</code>, <code>parallelisable</code>, <code>constraints</code>, <code>execution</code>, <code>requires</code>). It is not enough for the fields a model reads. Today's tool APIs (the Anthropic Messages API, Bedrock's <code>toolSpec</code>) pass only a name, a description and an input schema — no metadata — and MCP clients don't put <code>_meta</code> in the prompt. Stop at <code>_meta</code> and the model never sees <code>effect</code>, <code>interpretation</code> or the error <code>hint</code>s.</p>
+<p>Attaching the document under <code>_meta</code> is enough for the fields your client code reads (<code>deterministic</code>, <code>parallelisable</code>, <code>constraints</code>, <code>execution</code>, <code>requires</code>). It is not enough for the fields a model reads. Platforms like Claude Desktop pass the tool's name, description and input schema to the model, but not its <code>_meta</code> — so the model never sees <code>effect</code>, <code>interpretation</code> or the error <code>hint</code>s.</p>
 
-<p>So put the model-facing content where the model will see it:</p>
+<p>Put the algoto document in the tool's description as well, so the model can read it.</p>
 
-<ul>
-  <li>the plain-language parts (<code>algorithm.description</code>, output <code>interpretation</code>, guardrail and error guidance) go in the tool description;</li>
-  <li>the per-input parts (<code>effect</code>, <code>units</code>, <code>omission</code>) go in the input-schema property descriptions, which reach the model and stay machine-readable.</li>
-</ul>
-
-<p>The <code>_meta</code> document is still the source of truth — this is the same content on the one channel a model receives, not duplication for its own sake.</p>
-
-<h3>4.4 CLI</h3>
+<h3>4.3 CLI</h3>
 
 <p>Ship a sidecar <code>&lt;tool_name&gt;.algoto.json</code> and support <code>--algoto</code> on each subcommand to print it.</p>
 
-<h3>4.5 Validation</h3>
+<h3>4.4 Validation</h3>
 
 <p>Any JSON Schema 2020-12 validator can check a document:</p>
 
