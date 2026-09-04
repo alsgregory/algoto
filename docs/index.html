@@ -134,6 +134,24 @@
   footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 13.5px; color: var(--muted); }
   header.page-header { max-width: 1100px; margin: 0 auto; padding: 48px 32px 24px; border-bottom: 1px solid var(--border); text-align: center; }
   @media (max-width: 900px) { header.page-header { padding: 32px 20px 8px; } }
+
+  .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13.5px;
+    font-weight: 550;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    text-decoration: none;
+    margin-top: 20px;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .nav-btn:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); text-decoration: none; }
+  .nav-btn .arrow { font-size: 15px; line-height: 1; }
 </style>
 </head>
 <body>
@@ -151,6 +169,8 @@
     <div><span class="k">License</span> Open Source</div>
     <div><span class="k">Repository</span> <a href="https://github.com/alsgregory/algoto">github.com/alsgregory/algoto</a></div>
   </div>
+
+  <a class="nav-btn" href="practitioners-view.html">Practitioner's View <span class="arrow">→</span></a>
 </header>
 
 <div class="layout">
