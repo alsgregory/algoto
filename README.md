@@ -1,4 +1,9 @@
-# algoto — An Algorithmic Agentic Tool Specification
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/algoto-logo-dark.png">
+    <img src="docs/assets/algoto-logo.png" alt="algoto: a tiny spec for tools that run algorithms" width="480">
+  </picture>
+</p>
 
 **[Documentation](https://alsgregory.github.io/algoto/)** · **[Schema](docs/algoto.schema.json)**
 
