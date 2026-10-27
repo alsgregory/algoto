@@ -134,15 +134,16 @@
   footer { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 13.5px; color: var(--muted); }
   header.page-header { max-width: 1100px; margin: 0 auto; padding: 48px 32px 24px; border-bottom: 1px solid var(--border); text-align: center; }
   @media (max-width: 900px) { header.page-header { padding: 32px 20px 8px; } }
+  .logo img { display: block; margin: 0 auto 8px; max-width: 100%; height: auto; }
 </style>
 </head>
 <body>
 
 <header class="page-header">
-  <div style="display:inline-block;font-family:'Space Grotesk',sans-serif;">
-    <div style="font-size:36px;font-weight:600;letter-spacing:-0.015em;color:var(--text);line-height:1;">algoto</div>
-    <div style="font-size:10px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-top:7px;padding-left:2px;">Algorithmic Tool Spec</div>
-  </div>
+  <picture class="logo">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/algoto-logo-dark.png">
+    <img src="assets/algoto-logo.png" alt="algoto: a tiny spec for tools that run algorithms" width="420">
+  </picture>
 
   <div class="frontmatter" style="text-align: left;">
     <div><span class="k">Version</span> 1.1</div>
